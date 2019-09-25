@@ -1,0 +1,57 @@
+html, body, div, span,h1, h2, h3, h4, h5, h6, p,a,  pre, del, em, img, ins,kbd, q, samp,small, strong, sub, sup, var,b, i,dl, dt, dd, ol, ul, li,form,table, caption, tbody, input,
+tfoot,thead,tr, th, td
+ {
+    margin:0;
+    padding:0;
+}
+
+body {
+	font-size: 12px !important;
+    line-height:1;
+}
+
+img {
+    border: none;
+    vertical-align: middle;
+}
+
+li {
+    list-style: none;
+}
+a{
+	color: #000;
+    background:transparent;
+    text-decoration: none;
+    outline-style:none;
+}
+
+i {
+    font-size: normal;
+}
+
+input {
+	border: 0 none;
+	outline: none;
+    vertical-align:middle;
+}
+
+/*css为clearfix，清除浮动*/
+.clearfix::before,
+.clearfix::after{
+    content: "";
+    display: block;
+}
+.clearfix:after{
+	clear:both;
+} 
+.clearfix{ 
+    *zoom:1;
+}
+/*版心*/
+// -------------------------------上面是初始化代码---------------------------------------
+.nav-bar {
+    background-color: #3296fa;
+    .van-nav-bar__title {
+        color: white;
+    }
+}

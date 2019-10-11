@@ -1,7 +1,8 @@
 <template>
   <div class="home">
     <!-- 搜索框 -->
-    <van-search shape="round" background="#3296fa" placeholder="请输入搜索关键词" v-model="search" />
+    <!-- <van-search shape="round" background="#3296fa" placeholder="请输入搜索关键词" v-model="search" /> -->
+    <van-nav-bar title="首页" />
     <!-- 中间所有内容 -->
     <div class="content">
       <!-- 点击触发弹出层 -->
@@ -29,21 +30,24 @@
               @load="onLoad"
             >
               <van-cell v-for="(item, i) in articleList" :key="i">
-                <div class="recommend">
-                  <p class="title">{{item.title}}</p>
-                  <div class="pic">
-                    <img v-for="img in item.cover.images" :src="img" alt />
-                  </div>
-                  <p class="footer">
-                    <span>置顶</span>
+                <template slot="title">
+                  <div @click="$router.push(`/artDetail/${item.art_id}`)">{{item.title}}</div>
+                </template>
+                <template slot="label">
+                  <!-- 放图片的宫格 -->
+                  <van-grid :border="false" :column-num="3" v-if="item.cover.type > 0">
+                    <van-grid-item v-for="image in item.cover.images">
+                      <van-image :src="image" @click="$router.push(`/artDetail/${item.art_id}`)" />
+                    </van-grid-item>
+                  </van-grid>
+                  <!-- 下面文字 -->
+                  <div class="bottom-txt">
                     <span>{{item.aut_name}}</span>
-                    <span>{{item.comm_count}} 评论</span>
-                    <span>{{item.pubdate}}</span>
-                    <a href="javascript:;">
-                      <van-icon name="cross" color="#cecece" size="10px 10px" />
-                    </a>
-                  </p>
-                </div>
+                    <span>{{item.comm_count}}评论</span>
+                    <span>{{item.pubdate | relvTime}}</span>
+                    <van-icon name="close" style="float: right;" @click="goClose(item)" />
+                  </div>
+                </template>
               </van-cell>
             </van-list>
           </van-pull-refresh>
@@ -51,21 +55,35 @@
       </van-tabs>
     </div>
     <!-- 弹出层 -->
-    <van-popup v-model="show" position="bottom" :style="{ height: '90%' }" />
+    <channel v-model="show" :activeNum.sync="activeTab" :currentChannel.sync="channelList"></channel>
+    <!-- 举报/反馈等 -->
+    <report v-model="isShow" :art_id="art_id" :aut_id="aut_id" :articleList="articleList"></report>
   </div>
 </template>
 
 <script>
+// 导入举报组件
+import report from "./report.vue";
+//
 import { getChannel } from "@/api/channel.js";
 import { getArticle } from "@/api/article.js";
+import channel from "./channel.vue";
+import { getChannel as loaclChannel } from "@/utils/storage/";
+import { setChannel } from "@/utils/storage";
+
 export default {
   name: "home",
   data() {
     return {
-      // 绑定搜索
-      search: "",
+      // 点击x层时,传递过去的id
+      art_id: "",
+      aut_id: "",
+      // x层是否显示
+      isShow: false,
       // 弹出层是否显示
       show: false,
+      // 绑定搜索
+      search: "",
       // 当前tab
       activeTab: 0,
       // channel频道列表
@@ -117,30 +135,71 @@ export default {
     async articleChange() {
       let res = await this.loadArticle();
       this.articleList = res.data.data.results;
-      console.log(res);
+      // console.log(res);
+    },
+    goClose(item) {
+      this.isShow = true;
+      this.art_id = item.art_id;
+      this.aut_id = item.aut_id;
     }
   },
   async created() {
     // 获取频道列表
-    let data = await getChannel();
-    this.channelList = data.data.data.channels;
+    let loacl = loaclChannel();
+    if (this.$store.state.userInfo || !loacl) {
+      let data = await getChannel();
+      if (loacl) {
+        let arr = loacl.filter(item1 => {
+          let kg = true;
+          data.data.data.channels.forEach(item2 => {
+            if (item1.id == item2.id) {
+              kg = false;
+              return;
+            }
+          });
+          return kg;
+        });
+        data.data.data.channels.push(...arr);
+      }
+      this.channelList = data.data.data.channels;
+      // setChannel(this.channelList);
+    } else {
+      let res = loaclChannel();
+      this.channelList = res;
+    }
     // 进入页面加载一次数据;
-    let res = await this.loadArticle();
-    this.articleList = res.data.data.results;
+    // let res = await this.loadArticle();
+    // this.articleList = res.data.data.results;
+  },
+  components: {
+    channel,
+    report
   }
 };
 </script>
 
 <style lang="less" scoped>
 .home {
-  margin: 108px 0 52px 0;
+  margin: 90px 0 52px 0;
   background-color: #fff;
+  // 头
+  .van-nav-bar {
+    background-color: #3296fa;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+
+    .van-nav-bar__title {
+      color: white;
+    }
+  }
   // tab栏
   .content {
     /deep/.van-tabs__wrap {
       position: fixed;
       left: 0;
-      top: 64px;
+      top: 46px;
       z-index: 999;
       width: 92%;
     }
@@ -148,7 +207,7 @@ export default {
     .right-nav {
       position: fixed;
       right: 0;
-      top: 64px;
+      top: 46px;
       z-index: 999;
       width: 33px;
       height: 43px;
@@ -162,46 +221,19 @@ export default {
     }
   }
   // 搜索框
-  .van-search {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 999;
-    width: 100%;
-    height: 64px;
-  }
-  // 取消每行的默认内边距
-  .van-cell {
-    padding: 0;
-  }
-  // 内容
-  .recommend {
-    padding: 13px 12px 16px;
-    .title {
-      font-size: 16px;
-    }
-    .pic {
-      width: 100%;
-      max-height: 74px;
-      margin: 15px 0;
-      img {
-        width: 115px;
-        height: 74px;
-        margin: 0 1px;
-      }
-    }
-    .footer {
-      span {
-        margin-right: 10px;
-        color: #b4b4b4;
-        &:first-child {
-          color: #e22829;
-        }
-      }
-      a {
-        float: right;
-      }
+  // .van-search {
+  //   position: fixed;
+  //   top: 0;
+  //   left: 0;
+  //   z-index: 999;
+  //   width: 100%;
+  //   height: 64px;
+  // }
+  .bottom-txt {
+    span {
+      margin-right: 10px;
     }
   }
 }
 </style>
+

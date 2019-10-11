@@ -1,14 +1,14 @@
 <template>
-  <div class="loggedIn">
+  <div class="mine">
     <div class="my-top">
       <!-- 个人信息 -->
       <div class="info">
         <!-- 头像 -->
-        <div class="userIcon">
-          <img :src="userInfo.photo" alt="">
+        <div class="userIcon" @click="$router.push('/profile')">
+          <img :src="userInfo.photo" alt />
         </div>
         <div class="infotxt">
-          <div class="name">{{userInfo.name}}</div>
+          <div class="name" @click="$router.push('/profile')">{{userInfo.name}}</div>
           <div class="authentication">申请认证{{userInfo.certi}}</div>
         </div>
         <!-- 阅读时间 -->
@@ -57,10 +57,10 @@
 </template>
 
 <script>
-import { meInfo } from "@/api/login.js";
+import { meInfo } from "@/api/user.js";
 import setupList from "@/components/setupList.vue";
 export default {
-  name: "loggedIn",
+  name: "mine",
   data() {
     return {
       userInfo: []
@@ -78,7 +78,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.loggedIn {
+.mine {
   .my-top {
     position: relative;
     width: 100%;

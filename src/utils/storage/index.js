@@ -9,3 +9,10 @@ export const getStorage = () => {
 export const removeStorage = () => {
     window.localStorage.removeItem(USER_KEY);
 }
+// 本地存储频道列表
+export const getChannel = () => {
+    return JSON.parse(window.localStorage.getItem("channel"))
+}
+export const setChannel = data => {
+    return window.localStorage.setItem("channel", JSON.stringify(data));
+}

@@ -24,17 +24,17 @@
 
 <script>
 import setupList from "@/components/setupList.vue";
-import { getStorage } from "@/utils/storage/";
-import { meInfo } from "@/api/login.js";
+import store from "@/store/index.js";
 export default {
+  name: "notLogged",
   components: {
     setupList
   },
-  async created() {
-    let data = await getStorage();
-    // console.log(data);
-    if (data.token !== "") {
-      this.$router.push("/loggedIn");
+  created() {
+    // let data = await getStorage();
+    // console.log(this.$store.state.userInfo.token);
+    if (this.$store.state.userInfo.token !== "") {
+      this.$router.push("/mine");
     }
   }
 };

@@ -60,8 +60,10 @@ export default {
           let res = await login(this.form);
           this.$router.push("/home");
           setStorage(res.data.data);
-          console.log(res);
+          this.$store.commit("setUserInfo", res.data.data);
+          // console.log(res);
         } catch (error) {
+          console.dir(error);
           this.$toast.fail("手机号或密码错误");
         }
       }

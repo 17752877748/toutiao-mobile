@@ -10,6 +10,7 @@ import search from '../views/search/'
 import list from '../views/list/'
 import artDetail from '../views/artDetail/'
 import profile from '../views/profile/'
+import xiaozhi from '../views/xiaozhi/'
 
 Vue.use(Router)
 
@@ -19,6 +20,7 @@ export default new Router({
     { path: '/list/:key', component: list, name: 'list' },
     { path: '/artDetail/:id', component: artDetail, name: 'artDetail' },
     { path: '/profile/', component: profile, name: 'profile' },
+    { path: '/xiaozhi/', component: xiaozhi, name: 'xiaozhi' },
     {
       path: '', component: tabbar, children: [
         { path: '', redirect: '/home' },

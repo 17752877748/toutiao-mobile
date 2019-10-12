@@ -20,7 +20,7 @@
         <span>用户反馈</span>
         <van-icon name="arrow" />
       </div>
-      <div class="xz-classmate">
+      <div class="xz-classmate" @click="$router.push('/xiaozhi')">
         <span>小智同学</span>
         <van-icon name="arrow" />
       </div>
